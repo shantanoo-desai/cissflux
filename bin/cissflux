@@ -1,0 +1,6 @@
+#!/usr/bin/env python3
+
+import cissflux
+
+if __name__ == '__main__':
+    cissflux.main()
