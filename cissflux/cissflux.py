@@ -68,8 +68,8 @@ def send_data(node_name,serialport, updaterate, resolution, db_host, db_port, ud
                     # print(data)
                     sensor_data_points = ciss_module.parse_payload(data)
                     logger.debug('Data From Sensor: {}'.format(sensor_data_points))
-                logger.info('Writing to InfluxDB')
-                write_to_influx(client, sensor_data_points, node_name)
+                    logger.info('Writing to InfluxDB')
+                    write_to_influx(client, sensor_data_points, node_name)
     except Exception as e:
         logger.exception('Exception within `send_data` function')
         com.close()
