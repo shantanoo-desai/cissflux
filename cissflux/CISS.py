@@ -4,7 +4,7 @@ import logging
 import serial
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=logging.ERROR)
 
 class ciss:
     def __init__(self, device):
