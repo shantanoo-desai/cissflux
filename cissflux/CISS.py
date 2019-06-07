@@ -101,6 +101,8 @@ class ciss:
                 logger.info('type: acc')
                 data_type['measurement'] = 'acc'
                 accepted_data.pop(0)
+                if len(accepted_data) < data_length:
+                    break
                 res = self.parse_inert_vec(accepted_data[0:data_length])
                 data_type['fields']['x'], data_type['fields']['y'], data_type['fields']['z'] = [v/1000 for v in res]
                 logger.debug(data_type)
@@ -111,6 +113,8 @@ class ciss:
                 logger.info('type: mag')
                 data_type['measurement'] = 'mag'
                 accepted_data.pop(0)
+                if len(accepted_data) < data_length:
+                    break
                 res = self.parse_inert_vec(accepted_data[0:data_length])
                 # res = self.parse_inert_vec(list(accepted_data))
                 data_type['fields']['x'], data_type['fields']['y'], data_type['fields']['z'] = res
@@ -122,6 +126,8 @@ class ciss:
                 logger.info('type: gyro')
                 data_type['measurement'] = 'gyro'
                 accepted_data.pop(0)
+                if len(accepted_data) < data_length:
+                    break
                 res = self.parse_inert_vec(accepted_data[0:data_length])
                 # res = self.parse_inert_vec(list(accepted_data))
                 data_type['fields']['x'], data_type['fields']['y'], data_type['fields']['z'] = res
