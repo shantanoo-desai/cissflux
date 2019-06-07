@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 setup(name='cissflux',
-    version=1.1,
+    version=1.2,
     description='Extract sensor values from BOSCH CISS and save them to InfluxDB',
     long_description=readme(),
     url='https://github.com/shantanoo-desai/cissflux',
