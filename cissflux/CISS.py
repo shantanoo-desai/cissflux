@@ -96,10 +96,10 @@ class ciss:
         data_length = 6  # for inertial
         extracted_data = []
         while len(accepted_data) != 0:
-            data_type = {'measurement': '', 'fields':{'x': 0.0, 'y': 0.0, 'z': 0.0}}
+            data_type = {'measurement': '', 'fields':{'x': 0.0, 'y': 0.0, 'z': 0.0, 'status': 0}}
             if accepted_data[0] == 2:
                 logger.info('type: acc')
-                data_type['measurement'] = 'acc'
+                data_type['measurement'] = 'cissAcc'
                 accepted_data.pop(0)
                 if len(accepted_data) < data_length:
                     break
@@ -111,7 +111,7 @@ class ciss:
 
             elif accepted_data[0] == 3:
                 logger.info('type: mag')
-                data_type['measurement'] = 'mag'
+                data_type['measurement'] = 'cissMag'
                 accepted_data.pop(0)
                 if len(accepted_data) < data_length:
                     break
@@ -124,7 +124,7 @@ class ciss:
 
             elif accepted_data[0] == 4:
                 logger.info('type: gyro')
-                data_type['measurement'] = 'gyro'
+                data_type['measurement'] = 'cissGyro'
                 accepted_data.pop(0)
                 if len(accepted_data) < data_length:
                     break
