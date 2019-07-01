@@ -4,7 +4,7 @@ import logging
 import serial
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(stream=sys.stdout, level=logging.ERROR)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 class ciss:
     def __init__(self, device):
@@ -96,41 +96,52 @@ class ciss:
         data_length = 6  # for inertial
         extracted_data = []
         while len(accepted_data) != 0:
-            data_type = {'measurement': '', 'fields':{'x': 0.0, 'y': 0.0, 'z': 0.0, 'status': 0}}
+            data_type = {'measurement': 'ciss',
+                         'fields':
+                            {
+                                'accX': 0.0, 
+                                'accY': 0.0, 
+                                'accZ': 0.0,
+                                'gyroX': 0.0,
+                                'gyroY': 0.0,
+                                'gyroZ': 0.0,
+                                'magX': 0.0,
+                                'magY': 0.0,
+                                'magZ': 0.0,
+                                'status': 0
+                            }
+                        }
             if accepted_data[0] == 2:
                 logger.info('type: acc')
-                data_type['measurement'] = 'cissAcc'
                 accepted_data.pop(0)
                 if len(accepted_data) < data_length:
                     break
                 res = self.parse_inert_vec(accepted_data[0:data_length])
-                data_type['fields']['x'], data_type['fields']['y'], data_type['fields']['z'] = [v/1000 for v in res]
+                data_type['fields']['accX'], data_type['fields']['accY'], data_type['fields']['accZ'] = [v/1000 for v in res]
                 logger.debug(data_type)
                 extracted_data.append(data_type)
                 accepted_data = accepted_data[data_length:]
 
             elif accepted_data[0] == 3:
                 logger.info('type: mag')
-                data_type['measurement'] = 'cissMag'
                 accepted_data.pop(0)
                 if len(accepted_data) < data_length:
                     break
                 res = self.parse_inert_vec(accepted_data[0:data_length])
                 # res = self.parse_inert_vec(list(accepted_data))
-                data_type['fields']['x'], data_type['fields']['y'], data_type['fields']['z'] = res
+                data_type['fields']['magX'], data_type['fields']['magY'], data_type['fields']['magZ'] = res
                 logger.debug(data_type)
                 extracted_data.append(data_type)
                 accepted_data = accepted_data[data_length:]
 
             elif accepted_data[0] == 4:
                 logger.info('type: gyro')
-                data_type['measurement'] = 'cissGyro'
                 accepted_data.pop(0)
                 if len(accepted_data) < data_length:
                     break
                 res = self.parse_inert_vec(accepted_data[0:data_length])
                 # res = self.parse_inert_vec(list(accepted_data))
-                data_type['fields']['x'], data_type['fields']['y'], data_type['fields']['z'] = res
+                data_type['fields']['gyroX'], data_type['fields']['gyroY'], data_type['fields']['gyroZ'] = res
                 logger.debug(data_type)
                 extracted_data.append(data_type)
                 accepted_data = accepted_data[data_length:]
