@@ -48,10 +48,11 @@ optional arguments:
   --db-port DB_PORT     port number for InfluxDB HTTP Instance. Default: 8086
 ```
 
-- You will need to mention the name of the node, e.g. `CISS1` or similar to use it as a `tag` in InfluxDB
-- You will need to mention the USB Serial Port explicitly e.g. `/dev/ttyUSB0` or `COM3`
-- You will need to mention the UDP Port for the Sensor set in the `influxdb.conf` under the `[[udp]]` section
+- You can mention the name of the node, e.g. `CISS1` or similar to use it as a `tag` in InfluxDB
+- You can mention the USB Serial Port explicitly e.g. `/dev/ttyUSB0` or `COM3`
+- You can mention the UDP Port for the Sensor set in the `influxdb.conf` under the `[[udp]]` section
 - You can change the location of the log file in the `cissflux/cissflux.py` file
+- You can change the location of the minimal configuration file in `cissflux/cissflux.py` file
 
 ### Example
 
@@ -70,6 +71,10 @@ Typical Example:
         cissflux --serialport COM3 --udp-port 8100 --node testCISS
 
 Data will be stored in `CISS` Database.
+
+3. If run as default the `CONF_PATH` JSON file which contains the minimum configuration file will be executed:
+
+        cissflux # using file conf.json
 
 ## Sensors Available
 
