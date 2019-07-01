@@ -1,0 +1,10 @@
+{
+    "CISS": {
+        "nodeName": "NODE1",
+        "serialport": "/dev/ttyACM0",
+        "updaterate": 100000,
+        "dbConf": {
+          "udp_port": 8094
+        }
+      }
+}
