@@ -1,4 +1,5 @@
 import sys
+import json
 import argparse
 import logging
 
@@ -17,6 +18,7 @@ formatter = logging.Formatter('%(asctime)s-%(name)s-%(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
+CONF_PATH = '/etc/umg/conf.json'
 com = None
 client = None
 
@@ -83,11 +85,11 @@ def parse_args():
 
     parser = argparse.ArgumentParser(description='CLI for acquiring CISS values and storing it in InfluxDB')
 
-    parser.add_argument('--node', type=str, required=True, help='Node Name for CISS. Used as Tag for InfluxDB')
+    parser.add_argument('--node', type=str, required=False, help='Node Name for CISS. Used as Tag for InfluxDB')
     
-    parser.add_argument('--serialport', type=str, required=True, help='Serial USB Port for CISS')
+    parser.add_argument('--serialport', type=str, required=False, help='Serial USB Port for CISS')
 
-    parser.add_argument('--udp-port', type=int, required=True, default=8086,
+    parser.add_argument('--udp-port', type=int, required=False, default=8086,
                         help='UDP Port for sending information via UDP.\n Should also be configured in InfluxDB')
 
 
@@ -108,6 +110,32 @@ def parse_args():
 
 def main():
     args = parse_args()
+
+    CONF = dict()
+
+    if len(sys.argv) == 1:
+        logger.info('Starting Script in Default Mode.')
+        # minimum configuration file
+        logger.debug('CONF FILE: %s' % CONF_PATH)
+        with open(CONF_PATH) as cFile:
+            _conf = json.load(cFile)
+            CONF = _conf['CISS'] # store conf for CISS
+            logger.debug('CONF: ' + json.dumps(CONF))
+        
+        try:
+            send_data(node_name=CONF['nodeName'],
+                    serialport=CONF['serialport'],
+                    updaterate=CONF['updaterate'],
+                    resolution=args.resolution,
+                    db_host=args.db_host,
+                    db_port=args.db_port,
+                    udp_port=CONF['dbConf']['udp_port'])
+            # everything esle is default
+        except KeyboardInterrupt:
+            logger.exception('CTRL+C hit.')
+            com.close()
+            client.close()
+            sys.exit(0)
 
     if len(sys.argv) > 1:
         if args.serialport is None:
