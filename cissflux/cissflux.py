@@ -1,5 +1,6 @@
 import sys
 import json
+import time
 import argparse
 import logging
 
@@ -7,9 +8,10 @@ from .CISS import ciss
 import serial
 from influxdb import InfluxDBClient
 from influxdb.client import InfluxDBClientError
+from influxdb.client import InfluxDBServerError
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.ERROR)
+logger.setLevel(logging.INFO)
 
 handler = logging.FileHandler("/var/log/cissinflux.log")
 handler.setLevel(logging.ERROR)
@@ -29,17 +31,18 @@ def write_to_influx(db_client, data_points, node_name):
     try:
         db_client.send_packet(_packet)
         logger.info('UDP packet sent')
-    except InfluxDBClientError as e:
+    except (InfluxDBClientError, InfluxDBServerError) as e:
         logger.exception('Exception during UDP Packet Send for InfluxDB')
         db_client.close()
-        raise(e)
+        logger.exception(e)
+        pass
 
 
 def send_data(node_name,serialport, updaterate, resolution, db_host, db_port, udp_port):
     """Function to Setup CISS Node and extract sensor information from it via Serial Port and sending
         the information to InfluxDB via UDP
     """
-    logger.info('reading at {} every {}s for Node {}'.format(serialport, resolution/(10**6), node_name))
+    logger.info('reading at {} every {}s for Node {}'.format(serialport, updaterate/(10**6), node_name))
     try:
         ciss_module = ciss(serialport)
         logger.info('Disable All Sensors Initially for Setup')
@@ -54,9 +57,10 @@ def send_data(node_name,serialport, updaterate, resolution, db_host, db_port, ud
         try:
             logger.info('Creating InfluxDB Connection')
             client = InfluxDBClient(host=db_host, port=db_port, use_udp=True, udp_port=udp_port)
-        except InfluxDBClientError as e:
+        except (InfluxDBClientError, InfluxDBServerError) as e:
             logger.exception('Exception During InfluxDB Client Creation')
             client.close()
+            logger.exception(e)
             raise(e)
         logger.info('Reading Sensor Information from Port')
         while True:
@@ -72,11 +76,13 @@ def send_data(node_name,serialport, updaterate, resolution, db_host, db_port, ud
                     logger.debug('Data From Sensor: {}'.format(sensor_data_points))
                     logger.info('Writing to InfluxDB')
                     write_to_influx(client, sensor_data_points, node_name)
+                    time.sleep(updaterate/(10**6))
     except Exception as e:
         logger.exception('Exception within `send_data` function')
         com.close()
         client.close()
-        raise(e)
+        logger.exception(e)
+        pass
         
 
 
@@ -93,7 +99,7 @@ def parse_args():
                         help='UDP Port for sending information via UDP.\n Should also be configured in InfluxDB')
 
 
-    parser.add_argument('--updaterate', type=int, required=False, default=100000, help='Update Rate for CISS Module in us. Default: 100ms')
+    parser.add_argument('--updaterate', type=int, required=False, default=100000, help='Update Rate for CISS Module in us. Default: 10000 -> 100ms')
 
     parser.add_argument('--resolution', type=int, required=False, default=16, help='Resolution for CISS Accelerometer Module in G. Default: 16G')
 
